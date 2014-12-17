@@ -1,17 +1,23 @@
 package main
 
 import (
-	"fmt"
-	"bytes"
 	"log"
+
+	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 	"github.com/ChimeraCoder/anaconda"
 )
 
+type Link struct {
+	Url string
+	Sender string
+	Text string
+}
+
 func SignIn(c *gin.Context) { //w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-//	anaconda.SetConsumerKey("c5LBQ5awsg1XwVyCb5oOhh84W")
-//	anaconda.SetConsumerSecret("rqebVQvAwR3Os5jYDUToM5YlzeFFzCkR6dg9SO86JSD4Hzzc2K")
+	anaconda.SetConsumerKey("c5LBQ5awsg1XwVyCb5oOhh84W")
+	anaconda.SetConsumerSecret("rqebVQvAwR3Os5jYDUToM5YlzeFFzCkR6dg9SO86JSD4Hzzc2K")
 
 	redirect_url, _, err := anaconda.AuthorizationURL("http://www.wellwornkeyboard.com/signin/callback")
 	if err != nil {
@@ -36,15 +42,25 @@ func ListLinks(c *gin.Context) {
 		log.Print(err)
 		return
 	}
-	var w bytes.Buffer
+
+	var links []Link
 	for _ , tweet := range searchResult {
-		fmt.Fprintf(&w, "%s: %s\n", tweet.User.Name, tweet.Text)
 		for _ , url := range tweet.Entities.Urls {
-			fmt.Fprintf(&w, "<a href='%s'>%s</a>", url.Expanded_url, url.Expanded_url)
+			l := Link{
+				Url: url.Expanded_url,
+				Sender: tweet.User.Name,
+				Text: tweet.Text,
+			}
+			links = append(links, l)
 		}
 	}
-	fmt.Fprintf(&w, "yep ", len(searchResult))
-	c.String(200, w.String())
+
+	res, err := json.Marshal(links)
+	if err != nil {
+		c.String(500, err.Error())
+	}
+
+	c.String(200, string(res))
 }
 
 func SignInCallback(c *gin.Context){
