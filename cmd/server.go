@@ -2,33 +2,28 @@ package main
 
 import (
 	"fmt"
-	"net/http"
+	"bytes"
 	"log"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/gin-gonic/gin"
 	"github.com/ChimeraCoder/anaconda"
 )
 
-func SignIn(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func SignIn(c *gin.Context) { //w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 //	anaconda.SetConsumerKey("c5LBQ5awsg1XwVyCb5oOhh84W")
 //	anaconda.SetConsumerSecret("rqebVQvAwR3Os5jYDUToM5YlzeFFzCkR6dg9SO86JSD4Hzzc2K")
 
 	redirect_url, _, err := anaconda.AuthorizationURL("http://www.wellwornkeyboard.com/signin/callback")
 	if err != nil {
 		log.Print(err)
-		fmt.Fprint(w, "There was an error")
+		c.String(200, "There was an error")
 	} else {
-		log.Print("sending to callback")
-		fmt.Fprint(w, redirect_url)
-
-		// This doesn't work, figure out why
-		http.Redirect(w,r, redirect_url, 302)
+		c.Redirect(302, redirect_url)
 		return
-
 	}
 }
 
-func ListLinks(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func ListLinks(c *gin.Context) {
 	anaconda.SetConsumerKey("c5LBQ5awsg1XwVyCb5oOhh84W")
 	anaconda.SetConsumerSecret("rqebVQvAwR3Os5jYDUToM5YlzeFFzCkR6dg9SO86JSD4Hzzc2K")
 
@@ -41,27 +36,30 @@ func ListLinks(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		log.Print(err)
 		return
 	}
-
+	var w bytes.Buffer
 	for _ , tweet := range searchResult {
-		fmt.Fprintf(w, "%s: %s\n", tweet.User.Name, tweet.Text)
+		fmt.Fprintf(&w, "%s: %s\n", tweet.User.Name, tweet.Text)
 		for _ , url := range tweet.Entities.Urls {
-			fmt.Fprintf(w, "<a href='%s'>%s</a>", url.Expanded_url, url.Expanded_url)
+			fmt.Fprintf(&w, "<a href='%s'>%s</a>", url.Expanded_url, url.Expanded_url)
 		}
 	}
+	fmt.Fprintf(&w, "yep ", len(searchResult))
+	c.String(200, w.String())
 }
 
-func SignInCallback(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	oauth_token := r.URL.Query().Get("oauth_token")
+func SignInCallback(c *gin.Context){
+/*	oauth_token := r.URL.Query().Get("oauth_token")
 	oauth_verifier := r.URL.Query().Get("oauth_verifier")
 	fmt.Fprintf(w, "oauth_token    %s\n", oauth_token)
 	fmt.Fprintf(w, "oauth_verifier %s\n", oauth_verifier)
+*/
 }
 
 func main() {
-	router := httprouter.New()
+	router := gin.Default()
 	router.GET("/signin", SignIn)
 	router.GET("/signin/callback", SignInCallback)
 	router.GET("/links", ListLinks)
 
-	log.Fatal(http.ListenAndServe(":8080", router))
+	router.Run(":8080")
 }
