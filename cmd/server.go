@@ -9,6 +9,8 @@ import (
 	"github.com/ChimeraCoder/anaconda"
 	//"github.com/boltdb/bolt"
 	"github.com/gin-gonic/gin"
+
+	"github.com/wwkeyboard/twitter-links"
 )
 
 type Link struct {
@@ -32,12 +34,7 @@ func SignIn(c *gin.Context) { //w http.ResponseWriter, r *http.Request, ps httpr
 }
 
 func ListLinks(c *gin.Context) {
-	anaconda.SetConsumerKey(os.Getenv("CONSUMER_KEY"))
-	anaconda.SetConsumerSecret(os.Getenv("CONSUMER_SECRET"))
-
-	oauth_token := os.Getenv("OAUTH_TOKEN")
-	oauth_verifier := os.Getenv("OAUTH_VERIFIER")
-	api := anaconda.NewTwitterApi(oauth_token, oauth_verifier)
+	api := twitter_links.Api()
 
 	searchResult, err := api.GetHomeTimeline(nil)
 	if err != nil {
