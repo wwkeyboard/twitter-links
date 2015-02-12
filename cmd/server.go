@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"encoding/json"
 
@@ -19,9 +18,8 @@ type Link struct {
 	Text   string
 }
 
-func SignIn(c *gin.Context) { //w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	anaconda.SetConsumerKey(os.Getenv("CONSUMER_KEY"))
-	anaconda.SetConsumerSecret(os.Getenv("CONSUMER_SECRET"))
+func SignIn(c *gin.Context) {
+	twitter_links.SetKeys()
 
 	redirect_url, _, err := anaconda.AuthorizationURL("http://www.wellwornkeyboard.com/signin/callback")
 	if err != nil {
@@ -34,7 +32,8 @@ func SignIn(c *gin.Context) { //w http.ResponseWriter, r *http.Request, ps httpr
 }
 
 func ListLinks(c *gin.Context) {
-	api := twitter_links.Api()
+	u := new(twitter_links.User)
+	api := twitter_links.Api(*u)
 
 	searchResult, err := api.GetHomeTimeline(nil)
 	if err != nil {

@@ -5,9 +5,13 @@ import (
 	"os"
 )
 
-func Api() (api *anaconda.TwitterApi) {
+func SetKeys() {
 	anaconda.SetConsumerKey(os.Getenv("CONSUMER_KEY"))
 	anaconda.SetConsumerSecret(os.Getenv("CONSUMER_SECRET"))
+}
+
+func Api(u User) (api *anaconda.TwitterApi) {
+	SetKeys()
 
 	oauth_token := os.Getenv("OAUTH_TOKEN")
 	oauth_verifier := os.Getenv("OAUTH_VERIFIER")
