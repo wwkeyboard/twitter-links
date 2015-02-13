@@ -1,13 +1,32 @@
 package twitter_links
 
 import (
-	"github.com/ChimeraCoder/anaconda"
+	"log"
 	"os"
+
+	"github.com/ChimeraCoder/anaconda"
+	"github.com/garyburd/go-oauth/oauth"
 )
+
+func AppSecret() string {
+	return os.Getenv("CONSUMER_SECRET")
+}
+
+func GetCredsFromCallback(token string, verifier string) (realCreds *oauth.Credentials) {
+	tmpCreds := &oauth.Credentials{Token: token, Secret: AppSecret()}
+
+	realCreds, _, err := anaconda.GetCredentials(tmpCreds, verifier)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	return
+}
 
 func SetKeys() {
 	anaconda.SetConsumerKey(os.Getenv("CONSUMER_KEY"))
-	anaconda.SetConsumerSecret(os.Getenv("CONSUMER_SECRET"))
+	anaconda.SetConsumerSecret(AppSecret())
 }
 
 func Api(u User) (api *anaconda.TwitterApi) {

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"log"
-
 	"encoding/json"
+	"fmt"
+	"log"
 
 	"github.com/ChimeraCoder/anaconda"
 	//"github.com/boltdb/bolt"
@@ -62,11 +62,12 @@ func ListLinks(c *gin.Context) {
 }
 
 func SignInCallback(c *gin.Context) {
-	/*	oauth_token := r.URL.Query().Get("oauth_token")
-		oauth_verifier := r.URL.Query().Get("oauth_verifier")
-		fmt.Fprintf(w, "oauth_token    %s\n", oauth_token)
-		fmt.Fprintf(w, "oauth_verifier %s\n", oauth_verifier)
-	*/
+	query := c.Request.URL.Query()
+	token := query.Get("oauth_token")
+	verifier := query.Get("oauth_verifier")
+
+	realCreads := twitter_links.GetCredsFromCallback(token, verifier)
+	fmt.Print(realCreads)
 }
 
 func main() {
