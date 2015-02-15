@@ -66,8 +66,15 @@ func SignInCallback(c *gin.Context) {
 	token := query.Get("oauth_token")
 	verifier := query.Get("oauth_verifier")
 
-	realCreads := twitter_links.GetCredsFromCallback(token, verifier)
-	fmt.Print(realCreads)
+	realCreds := twitter_links.GetCredsFromCallback(token, verifier)
+	fmt.Print(realCreds)
+
+	u := twitter_links.User{
+		Username: "whatev",
+		Token:    realCreds.Token,
+		Verifier: verifier,
+	}
+	twitter_links.SaveUser(&u)
 }
 
 func main() {
