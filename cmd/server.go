@@ -21,7 +21,8 @@ type Link struct {
 func SignIn(c *gin.Context) {
 	twitter_links.SetKeys()
 
-	redirect_url, _, err := anaconda.AuthorizationURL("http://www.wellwornkeyboard.com/signin/callback")
+	// Need to generate an ID for the user first, and include it in the oauth callback
+	redirect_url, _, err := anaconda.AuthorizationURL("http://www.wellwornkeyboard.com/signin/callback/123456")
 	if err != nil {
 		log.Print(err)
 		c.String(200, "There was an error")
@@ -80,7 +81,7 @@ func SignInCallback(c *gin.Context) {
 func main() {
 	router := gin.Default()
 	router.GET("/signin", SignIn)
-	router.GET("/signin/callback", SignInCallback)
+	router.GET("/signin/callback/:user_id", SignInCallback)
 	router.GET("/links", ListLinks)
 
 	router.Run(":8080")
