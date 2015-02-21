@@ -12,12 +12,6 @@ import (
 	"github.com/wwkeyboard/twitter-links"
 )
 
-type Link struct {
-	Url    string
-	Sender string
-	Text   string
-}
-
 func SignIn(c *gin.Context) {
 	twitter_links.SetKeys()
 
@@ -42,10 +36,10 @@ func ListLinks(c *gin.Context) {
 		return
 	}
 
-	var links []Link
+	var links []twitter_links.Link
 	for _, tweet := range searchResult {
 		for _, url := range tweet.Entities.Urls {
-			l := Link{
+			l := twitter_links.Link{
 				Url:    url.Expanded_url,
 				Sender: tweet.User.Name,
 				Text:   tweet.Text,
